@@ -161,6 +161,7 @@
                 <button class="cyber-btn btn-node" onclick="toggleVirtualPad()">TOUCH CONTROLS</button>
                 <button class="cyber-btn btn-node" onclick="saveProgress()">💾 SAVE STATE</button>
                 <button class="cyber-btn btn-node" onclick="loadProgress()">📂 LOAD STATE</button>
+                <button class="cyber-btn btn-node" style="color: #ff0055;" onclick="clearEngineCache()">🧹 CLEAR CACHE</button>
             </div>
 
             <div class="bar-container" id="bar-box"><div class="bar-fill" id="bar-fill"></div></div>
@@ -184,9 +185,9 @@
             padStatus.style.color = "#00ffcc";
         });
 
-        // 🛠️ چارەسەری گرنگ: ناچارکردنی وێبڕکەید بۆ خوێندنەوەی ڕاستەوخۆی لێنکە نوێیەکە
+        // 🛠️ چارەسەری کۆتایی: دروستکردنی فیدی ڕەسەن بۆ ناردنی ڕاستەوخۆی لێنکی کایەکە بە شێوازی سەربەخۆ
         function startCloudStream() {
-            const url = document.getElementById('target-url').value;
+            const url = document.getElementById('target-url').value.trim();
             if(!url) return alert("Please enter a valid direct game URL first!");
             
             barBox.style.display = 'block';
@@ -201,9 +202,26 @@
                     emuFrame.style.display = 'block';
                     consoleLog.textContent = "STREAM ENGINE LAUNCHED!";
                     
-                    // ناردنی لێنکەکە بە شێوازی پارامیتەر بۆ ناو شوێنی سەرەکی وێبڕکەید بۆ ئەوەی داتای پێشوو بسڕێتەوە
-                    const encodedUrl = encodeURIComponent(url);
-                    emuFrame.src = "https://webrcade.com/?feed=" + encodedUrl;
+                    // دروستکردنی فیدی جەیسۆن لە کاتی ڕاکردن بۆ ئەوەی وێبڕکەید ناچار بێت تەنها لێنکی نوێ لۆد بکات
+                    const customFeed = {
+                        "title": "Ares Cloud Streaming",
+                        "categories": [{
+                            "title": "PlayStation 2",
+                            "items": [{
+                                "title": "God of War (Cloud)",
+                                "type": "play", /* مۆدی کارپێکردنی بزوێنەری play */
+                                "props": {
+                                    "rom": url
+                                }
+                            }]
+                        }]
+                    };
+                    
+                    const blob = new Blob([JSON.stringify(customFeed)], {type : 'application/json'});
+                    const blobUrl = URL.createObjectURL(blob);
+                    
+                    // لۆدکردنی ڕاستەوخۆی وێبڕکەید بە فیدی تایبەت بە خۆت
+                    emuFrame.src = "https://webrcade.com/?feed=" + encodeURIComponent(blobUrl);
                 }, 400);
             }, 1200);
         }
@@ -223,10 +241,21 @@
                     barBox.style.display = 'none';
                     posterView.style.display = 'none';
                     emuFrame.style.display = 'block';
-                    emuFrame.src = "https://webrcade.com"; // لۆدکردنی ئاسایی بۆ فایلی ناوخۆیی
+                    emuFrame.src = "https://webrcade.com"; 
                 }
             }, 80);
         });
+
+        // دوگمەیەکی نوێ بۆ سڕینەوەی کایە کۆنە چەقاوەکان لە ڕامی ئایپادەکە
+        function clearEngineCache() {
+            localStorage.clear();
+            sessionStorage.clear();
+            emuFrame.src = "about:blank";
+            emuFrame.style.display = 'none';
+            posterView.style.display = 'flex';
+            consoleLog.textContent = "ENGINE CACHE PURGED SUCCESSFULLY!";
+            alert("🧹 Cache cleared! Now paste the URL and try again.");
+        }
 
         function toggleVirtualPad() { vPad.style.display = (vPad.style.display === 'block') ? 'none' : 'block'; }
         function saveProgress() { localStorage.setItem('neo_ps2_save', 'true'); alert("💾 Save State written successfully!"); }
