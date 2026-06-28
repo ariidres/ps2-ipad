@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ares Neo-Cloud PS2 Engine</title>
+    <title>Cloud PS2 Player</title>
     <style>
+        /* Absolute Fix for iPad Scrolling & Browser Shaking */
         html, body {
             margin: 0; padding: 0; width: 100%; height: 100%;
             overflow: hidden !important; position: fixed;
@@ -112,7 +113,7 @@
 
     <div class="app-grid">
         <header>
-            <div class="logo">ARES NEO-CORE</div>
+            <div class="logo">PS2 CLOUD PLAYER</div>
             <div id="pad-status" style="color: #ff0055; font-size: 13px; font-weight: bold;">⚡ SYSTEM READY</div>
         </header>
 
@@ -140,12 +141,11 @@
                 <input type="file" id="file-selector" style="display: none;" accept=".iso,.bin">
                 
                 <button class="cyber-btn btn-node" onclick="toggleVirtualPad()">TOUCH CONTROLS</button>
-                <button class="cyber-btn btn-node" onclick="saveProgress()">💾 SAVE PROGRESS</button>
-                <button class="cyber-btn btn-node" style="color: #ff0055;" onclick="clearCache()">🧹 RESET ENGINE</button>
+                <button class="cyber-btn btn-node" style="color: #ff0055;" onclick="clearCache()">🧹 FORCED RESET</button>
             </div>
 
             <div class="bar-container" id="bar-box"><div class="bar-fill" id="bar-fill"></div></div>
-            <div id="console-log" style="font-size: 12px; color: #666; font-weight: bold;">ARES PLATFORM V3.0</div>
+            <div id="console-log" style="font-size: 12px; color: #666; font-weight: bold;">READY TO INITIALIZE</div>
         </div>
     </div>
 
@@ -159,38 +159,24 @@
 
         document.addEventListener('touchmove', function(e) { e.preventDefault(); }, { passive: false });
 
-        // 🛠️ جێگیرکردنی فیدی فەرمی یارییەکە بە کۆدکراوی ناوخۆیی
+        // 🛠️ چارەسەری ڕەسەن: ناردنی کایەکە بە شێوازی فەرمی App URL بە پارامیتەری جێگیر
         function playGodOfWar() {
             barBox.style.display = 'block';
             barFill.style.width = '100%';
-            consoleLog.textContent = "DECRYPTING GOD OF WAR CORE FEED...";
+            consoleLog.textContent = "INITIALIZING DIRECT APP PLAYER MODE...";
 
             setTimeout(() => {
                 barBox.style.display = 'none';
                 posterView.style.display = 'none';
                 emuFrame.style.display = 'block';
                 
-                // دروستکردنی فیدی فەرمی بە ناونیشانی یارییەکە بۆ وێبڕکەید
-                const officialFeed = {
-                    "title": "Ares Cloud Core",
-                    "categories": [{
-                        "title": "PlayStation 2",
-                        "items": [{
-                            "title": "God of War (USA)",
-                            "type": "play",
-                            "props": {
-                                "rom": "https://archive.org/download/ps2-god-of-war-usa/God%20of%20War%20%28USA%29.iso"
-                            }
-                        }]
-                    }]
-                };
-
-                const blob = new Blob([JSON.stringify(officialFeed)], {type : 'application/json'});
-                const blobUrl = URL.createObjectURL(blob);
+                // لێنکی ڕاستەوخۆی یارییەکە
+                const gameUrl = "https://archive.org/download/ps2-god-of-war-usa/God%20of%20War%20%28USA%29.iso";
                 
-                // ناردنی فیدەکە بە فەرمی
-                emuFrame.src = "https://webrcade.com/?feed=" + encodeURIComponent(blobUrl);
-                consoleLog.textContent = "STREAM RUNNING. PLEASE WAIT 1-2 MINS FOR THE 6GB ISO TO INITIALIZE...";
+                // بەکارهێنانی سیستمی فەرمی وێبڕکەید بۆ ناچارکردنی خوێندنەوەی یارییە دەرەکییەکان بە مەکینەی play (پلەیستەیشن ٢)
+                emuFrame.src = "https://webrcade.com/app/play/?rom=" + encodeURIComponent(gameUrl);
+                
+                consoleLog.textContent = "STREAM RUNNING. LOADING ISO DATA DIRECTLY...";
             }, 1000);
         }
 
@@ -211,11 +197,11 @@
         function clearCache() {
             localStorage.clear(); sessionStorage.clear();
             emuFrame.src = "about:blank"; emuFrame.style.display = 'none'; posterView.style.display = 'flex';
-            alert("Engine Reset Complete!");
+            consoleLog.textContent = "CACHE PURGED";
+            alert("Engine Reset Complete! Cache has been purged.");
         }
 
         function toggleVirtualPad() { vPad.style.display = (vPad.style.display === 'block') ? 'none' : 'block'; }
-        function saveProgress() { alert("Progress Auto-Saved to iPad Storage!"); }
     </script>
 </body>
 </html>
