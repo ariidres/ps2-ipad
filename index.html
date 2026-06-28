@@ -3,41 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PS2 iPadOS Emulator - Live Loader</title>
+    <title>PS2 iPadOS All-In-One Emulator</title>
     <style>
-        body { margin: 0; background-color: #111; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-        #emulator-container { width: 95%; max-width: 800px; aspect-ratio: 4 / 3; background: black; border: 2px solid #333; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 10px; padding: 20px; box-sizing: border-radius; }
+        body { margin: 0; background-color: #111; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        #emulator-container { width: 95%; max-width: 800px; aspect-ratio: 4 / 3; background: black; border: 2px solid #333; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 10px; overflow: hidden; }
+        canvas { width: 100%; height: 100%; display: none; background: #000; }
         .controls { margin-top: 20px; text-align: center; }
         input[type="file"] { display: none; }
-        .btn { background-color: #e50914; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.2s; }
-        .btn:hover { background-color: #b80710; }
-        
-        /* سیستمی شریتی پێشکەوتن */
-        #progress-container { width: 80%; background-color: #333; border-radius: 20px; margin-top: 20px; display: none; overflow: hidden; border: 1px solid #444; }
-        #progress-bar { width: 0%; height: 20px; background-color: #4caf50; transition: width 0.1s linear; text-align: center; line-height: 20px; color: white; font-weight: bold; font-size: 12px; }
-        
-        #status-text { margin-top: 15px; font-size: 16px; color: #ddd; text-align: center; max-width: 90%; word-break: break-all; }
-        #stats-info { margin-top: 8px; font-size: 13px; color: #aaa; }
+        .btn { background-color: #e50914; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        #progress-container { width: 80%; background-color: #333; border-radius: 20px; margin-top: 20px; display: none; overflow: hidden; }
+        #progress-bar { width: 0%; height: 20px; background-color: #4caf50; text-align: center; line-height: 20px; color: white; font-weight: bold; font-size: 12px; }
+        #status-text { font-size: 16px; color: #ddd; text-align: center; padding: 10px; }
         #gamepad-status { margin-top: 15px; color: #888; font-size: 14px; }
     </style>
+    
+    <script src="https://purei.org/play/play.js" async></script>
 </head>
 <body>
 
     <h2>PS2 iPadOS Web Emulator</h2>
     
     <div id="emulator-container">
-        <div id="status-text">فایلی یاریەکە (ISO, BIN, CHD, ZIP) هەڵبژێره بۆ دەستپێکردن</div>
-        
-        <div id="progress-container">
-            <div id="progress-bar">0%</div>
-        </div>
-        
-        <div id="stats-info"></div>
+        <canvas id="canvas" id="player"></canvas>
+        <div id="status-text">بزوێنەری گشتی بەسترایەوە. فایلەکە (ISO / BIN) لۆد بکە:</div>
+        <div id="progress-container"><div id="progress-bar">0%</div></div>
     </div>
 
     <div class="controls">
-        <label class="btn" for="file-input">هاوردەکردنی فایل / یاری</label>
-        <input type="file" id="file-input" accept=".iso,.bin,.chd,.zip,.7z">
+        <label class="btn" for="file-input">هاوردەکردنی کایە</label>
+        <input type="file" id="file-input" accept=".iso,.bin,.chd">
         <div id="gamepad-status">کۆنتڕۆڵەر (جۆیستیک): نەبەستراوە</div>
     </div>
 
@@ -47,77 +41,50 @@
         const statusText = document.getElementById('status-text');
         const progressContainer = document.getElementById('progress-container');
         const progressBar = document.getElementById('progress-bar');
-        const statsInfo = document.getElementById('stats-info');
+        const canvas = document.getElementById('canvas');
 
-        // ١. سیستمی ناسینەوەی جۆیستیک
-        window.addEventListener("gamepadconnected", (e) => {
-            gamepadStatus.textContent = `🎮 کۆنتڕۆڵەر بە سەرکەوتوویی بەسترا: ${e.gamepad.id}`;
-            gamepadStatus.style.color = "#4caf50";
-        });
+        window.addEventListener("gamepadconnected", (e) => { gamepadStatus.textContent = `🎮 کۆنتڕۆڵەر بەسترا: ${e.gamepad.id}`; gamepadStatus.style.color = "#4caf50"; });
+        window.addEventListener("gamepaddisconnected", () => { gamepadStatus.textContent = "❌ کۆنتڕۆڵەر بڕدرا"; gamepadStatus.style.color = "#888"; });
 
-        window.addEventListener("gamepaddisconnected", (e) => {
-            gamepadStatus.textContent = "❌ کۆنتڕۆڵەر بڕدرا؛ تکایە دووبارە بیبەستەوە";
-            gamepadStatus.style.color = "#888";
-        });
-
-        // ٢. خوێندنەوەی فایل بە شێوازی Stream لەگەڵ حیسابکردنی %
         fileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
 
-            const fileSizeInMB = (file.size / (1024 * 1024)).toFixed(2);
-            statusText.textContent = `🔄 نیشانەکردنی فایل: ${file.name}`;
-            statsInfo.textContent = `قەبارەی گشتی: ${fileSizeInMB} MB`;
-            
             progressContainer.style.display = 'block';
-            progressBar.style.width = '0%';
-            progressBar.textContent = '0%';
+            statusText.textContent = `⏳ خوێندنەوەی داتای فایل: ${file.name}...`;
 
             const reader = new FileReader();
-            
-            // ئەم بەشە بەردەوام چاودێری گۆڕانکاری دەکات و % بەرز دەکاتەوە
             reader.onprogress = function(event) {
                 if (event.lengthComputable) {
-                    const percentComplete = Math.round((event.loaded / event.total) * 100);
-                    progressBar.style.width = percentComplete + '%';
-                    progressBar.textContent = percentComplete + '%';
-                    
-                    const loadedInMB = (event.loaded / (1024 * 1024)).toFixed(2);
-                    statusText.textContent = `⏳ لە حاڵەتی بارکردن: ${loadedInMB} MB لە ${fileSizeInMB} MB`;
+                    const percent = Math.round((event.loaded / event.total) * 100);
+                    progressBar.style.width = percent + '%';
+                    progressBar.textContent = percent + '%';
                 }
             };
 
             reader.onload = function(event) {
-                progressBar.style.width = '100%';
-                progressBar.textContent = '100%';
-                progressBar.style.backgroundColor = '#2196f3'; // دەبێتە شین کاتێک تەواو دەبێت
-                statusText.textContent = `✅ بارکردنی فایلەکە بە سەرکەوتوویی کۆتایی هات!`;
-                statsInfo.textContent = `پڕۆسێس دەکرێت بۆ ناو مەکینەی ئیمولەیتەر...`;
+                statusText.textContent = `⚡ بزوێنەری دەرەکی بانگکرا... کەمێک بوەستە...`;
+                progressContainer.style.display = 'none';
                 
-                const arrayBuffer = event.target.result;
-                bootGameCore(arrayBuffer);
+                // بەستنەوەی ڕاستەوخۆ بە سیستمەکەوە
+                if (typeof Module !== 'undefined') {
+                    canvas.style.display = 'block';
+                    const arrayBuffer = event.target.result;
+                    const data = new Uint8Array(arrayBuffer);
+                    
+                    try {
+                        Module.FS.writeFile('game.iso', data);
+                        statusText.textContent = "🎮 کایەکە دەستی پێکرد!";
+                        Module.ccall('run_image', null, ['string'], ['game.iso']);
+                    } catch(err) {
+                        statusText.textContent = "❌ سیستەمەکە پێویستی بە دۆخی باڵاترە (JIT). پێشنیار دەکرێت فایلی کەم قەبارەتر تاقی بکەیتەوە.";
+                    }
+                } else {
+                    statusText.textContent = "❌ سێرڤەری سەرەکی کاتی پێویستە بۆ لۆدکردنی بەشەکان. لاپەڕەکە نوێ (Refresh) بکەرەوە.";
+                }
             };
-
-            reader.onerror = function() {
-                statusText.textContent = "❌ خەتایەک لە کاتی خوێندنەوەی فایلەکە ڕوویدا.";
-                progressBar.style.backgroundColor = '#f44336';
-            };
-
-            // دەستپێکردنی خوێندنەوەی فایلی گەورە بە شێوازی ڕاوەشاوە
             reader.readAsArrayBuffer(file);
         });
-
-        // ٣. ناردنی داتای کایەکە بۆ مەکینەی کارپێکردن
-        function bootGameCore(buffer) {
-            // لێرەدا فایلەکە دەخرێتە ناو سیستمی WebAssembly
-            console.log("داتای کایەکە ئامادەیە بە قەبارەی: " + buffer.byteLength + " bytes");
-            
-            // کاتێک لۆدکردنی بەشەکان تەواو بوو، لێرەدا گرافیکەکە چالاک دەبێت
-            setTimeout(() => {
-                statusText.textContent = "🎮 مەکینەی کارپێکردن چالاک بوو. یارییەکە دەستی پێکرد!";
-                statsInfo.textContent = "تێبینی: ئەگەر شاشەکە ڕەش ما، هۆکارەکەی پاڵپشت نەکردنی فۆرماتی (.bin) ە لەلایەن مەکینەکەوە، پێشنیار دەکرێت فایلی (.iso) بەکاربهێنیت.";
-            }, 1500);
-        }
     </script>
 </body>
 </html>
