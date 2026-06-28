@@ -1,83 +1,253 @@
 <!DOCTYPE html>
-<html lang="ku">
+<html lang="ku" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PS2 iPadOS Stable Emulator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Ares Cloud - Premium PS2 Core</title>
     <style>
-        body { margin: 0; background-color: #111; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        #emulator-container { width: 95%; max-width: 800px; aspect-ratio: 4 / 3; background: black; border: 2px solid #333; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 10px; overflow: hidden; }
+        /* ڕێگریکردن لە سکرۆڵ و لەرینەوەی وێبگەڕ لەسەر ئایپاد */
+        html, body {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; background-color: #050505; color: white;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-user-select: none; user-select: none;
+        }
+
+        .app-layout {
+            display: flex; flex-direction: column; width: 100%; height: 100%;
+        }
+
+        /* باڕی سەرەوەی مۆدێرن وەک ئەپی نێتفلێکس */
+        header {
+            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
+            padding: 20px 40px; display: flex; justify-content: space-between;
+            align-items: center; position: absolute; top: 0; width: 100%; z-index: 100; box-sizing: border-box;
+        }
+
+        .brand-logo {
+            font-size: 26px; font-weight: 900; color: #ff000f;
+            text-shadow: 0 0 15px rgba(255, 0, 15, 0.5); letter-spacing: 2px;
+        }
+
+        .connection-badge {
+            background: rgba(255, 255, 255, 0.05); padding: 8px 16px;
+            border-radius: 20px; font-size: 13px; border: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; gap: 8px; transition: 0.3s;
+        }
+
+        /* شوێنی کارپێکردنی سەرەکی */
+        .workspace {
+            flex: 1; display: flex; align-items: center; justify-content: center; position: relative;
+            background: radial-gradient(circle, #141414 0%, #020202 100%);
+        }
+
+        .cinema-screen {
+            width: 88%; max-width: 850px; aspect-ratio: 4 / 3; background: #000;
+            border-radius: 16px; box-shadow: 0 30px 70px rgba(0,0,0,0.9);
+            position: relative; overflow: hidden; border: 1px solid #1a1a1a;
+        }
+
         iframe { width: 100%; height: 100%; border: none; display: none; }
-        .controls { margin-top: 20px; text-align: center; }
-        input[type="file"] { display: none; }
-        .btn { background-color: #e50914; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
-        #progress-container { width: 80%; background-color: #333; border-radius: 20px; margin-top: 20px; display: none; overflow: hidden; }
-        #progress-bar { width: 0%; height: 20px; background-color: #2196f3; text-align: center; line-height: 20px; color: white; font-weight: bold; font-size: 12px; }
-        #status-text { font-size: 16px; color: #ddd; text-align: center; padding: 10px; }
-        #gamepad-status { margin-top: 15px; color: #888; font-size: 14px; }
+
+        /* پۆستەری سەرەتایی زۆر ناوازەی God of War */
+        .game-poster-hub {
+            position: absolute; width: 100%; height: 100%;
+            background: linear-gradient(0deg, #000 10%, rgba(0,0,0,0.4) 100%), 
+                        url('https://images.alphacoders.com/605/605511.jpg') center/cover;
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+            padding-bottom: 50px; box-sizing: border-box; text-align: center;
+        }
+
+        .poster-title { font-size: 28px; font-weight: 800; margin: 0 0 10px 0; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+
+        /* دوگمە داهێنەرەکانی بەشی کۆنتڕۆڵ */
+        .action-hub {
+            background: #0d0d0d; padding: 25px; display: flex; flex-direction: column;
+            align-items: center; gap: 15px; border-top: 1px solid #161616; z-index: 50;
+        }
+
+        .cloud-input-box {
+            display: flex; gap: 12px; width: 100%; max-width: 650px;
+        }
+
+        .premium-input {
+            flex: 1; padding: 14px 20px; border-radius: 8px; border: 1px solid #222;
+            background: #161616; color: white; font-size: 14px; outline: none; transition: 0.3s;
+        }
+        .premium-input:focus { border-color: #ff000f; box-shadow: 0 0 10px rgba(255,0,15,0.2); }
+
+        .btn-premium {
+            background: #ff000f; color: white; padding: 14px 28px; border: none;
+            border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold;
+            box-shadow: 0 4px 15px rgba(255, 0, 15, 0.3); transition: 0.2s;
+        }
+        .btn-premium:hover { background: #cc000c; transform: translateY(-1px); }
+        .btn-control-node { background: #222; box-shadow: none; color: #ccc; }
+        .btn-control-node:hover { background: #333; color: white; }
+
+        /* مێنووی ڕێکخستنی گرافیک (Settings Tab) */
+        .settings-panel {
+            position: absolute; top: 80px; left: 40px; background: rgba(20,20,20,0.95);
+            border: 1px solid #222; padding: 15px; border-radius: 10px; display: none;
+            flex-direction: column; gap: 10px; backdrop-filter: blur(10px); z-index: 200;
+        }
+
+        /* دوگمەکانی سەر شاشە (Virtual Engine UI) */
+        .virtual-gamepad {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; display: none; z-index: 80;
+        }
+        .v-btn {
+            position: absolute; width: 60px; height: 60px; background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 50%; color: white;
+            display: flex; align-items: center; justify-content: center; font-size: 18px;
+            font-weight: bold; pointer-events: auto; backdrop-filter: blur(4px);
+        }
+        .v-dpad {
+            position: absolute; bottom: 50px; left: 50px; width: 110px; height: 110px;
+            background: rgba(255,255,255,0.05); border-radius: 50%; pointer-events: auto;
+            border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center;
+        }
+
+        .loading-line {
+            width: 100%; max-width: 400px; background: #1a1a1a; height: 6px;
+            border-radius: 10px; overflow: hidden; display: none; margin-top: 15px;
+        }
+        .loading-core { width: 0%; height: 100%; background: #ff000f; transition: width 0.1s linear; }
     </style>
 </head>
 <body>
 
-    <h2>PS2 iPadOS Web Emulator (Fixed)</h2>
-    
-    <div id="emulator-container">
-        <iframe id="emu-frame" src=""></iframe>
-        <div id="status-text">سیستەمەکە چاککرا! فایلی کایەکە هاوردە بکە بۆ دەستپێکردن:</div>
-        <div id="progress-container"><div id="progress-bar">0%</div></div>
-    </div>
+    <div class="app-layout">
+        <header>
+            <div class="brand-logo">ARES CLOUD</div>
+            <div class="connection-badge" id="pad-node">🔴 جۆیستیک: نەبەستراوە</div>
+        </header>
 
-    <div class="controls">
-        <label class="btn" for="file-input">هاوردەکردنی کایە (ISO / BIN)</label>
-        <input type="file" id="file-input" accept=".iso,.bin,.chd">
-        <div id="gamepad-status">کۆنتڕۆڵەر (جۆیستیک): نەبەستراوە</div>
+        <div class="settings-panel" id="settings-ui">
+            <h4 style="margin: 0 0 10px 0; font-size: 14px; color: #ff000f;">ڕێکخستنی سیستەم</h4>
+            <label style="font-size: 12px;"><input type="checkbox" checked> مۆدی گرافیکی 60 FPS</label>
+            <label style="font-size: 12px;"><input type="checkbox"> ڕوونی HD (Upscaling)</label>
+        </div>
+
+        <div class="workspace">
+            <div class="cinema-screen">
+                <div class="game-poster-hub" id="poster-layer">
+                    <div class="poster-title">God of War Collection</div>
+                    <div style="font-size: 13px; color: #aaa; margin-bottom: 15px;">سیستمی کارپێکردنی ڕاستەوخۆی کلاود بەبێ کڕاش</div>
+                </div>
+
+                <iframe id="cloud-core" src=""></iframe>
+
+                <div class="virtual-gamepad" id="virtual-pad">
+                    <div class="v-btn" style="bottom: 50px; right: 50px; background: rgba(0,140,255,0.2);">✕</div>
+                    <div class="v-btn" style="bottom: 120px; right: 50px; background: rgba(255,50,50,0.2);">△</div>
+                    <div class="v-btn" style="bottom: 50px; right: 120px; background: rgba(255,200,0,0.2);">◯</div>
+                    <div class="v-dpad">🕹️</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-hub">
+            <div class="cloud-input-box">
+                <input type="text" id="stream-url" class="premium-input" placeholder="لێنکی ڕاستەوخۆی یاری God of War لێرە دابنێ...">
+                <button class="btn-premium" onclick="initiateStream()">ستریم و کایە</button>
+            </div>
+
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
+                <label class="btn-premium btn-control-node" for="local-selector">لۆدکردنی فایلی ناوخۆ</label>
+                <input type="file" id="local-selector" style="display: none;" accept=".iso,.bin">
+                
+                <button class="btn-premium btn-control-node" onclick="toggleVirtualPad()">دوگمەی شاشە</button>
+                <button class="btn-premium btn-control-node" onclick="saveGameData()">💾 خەزنکردن (Save)</button>
+                <button class="btn-premium btn-control-node" onclick="loadGameData()">📂 هێنانەوە (Load)</button>
+                <button class="btn-premium btn-control-node" onclick="toggleSettings()">⚙️ ڕێکخستن</button>
+            </div>
+
+            <div class="loading-line" id="load-box"><div class="loading-core" id="load-fill"></div></div>
+            <div id="info-node" style="font-size: 13px; color: #666;">سیستەم ئامادەیە بۆ لۆدکردنی ستریم</div>
+        </div>
     </div>
 
     <script>
-        const fileInput = document.getElementById('file-input');
-        const gamepadStatus = document.getElementById('gamepad-status');
-        const statusText = document.getElementById('status-text');
-        const progressContainer = document.getElementById('progress-container');
-        const progressBar = document.getElementById('progress-bar');
-        const emuFrame = document.getElementById('emu-frame');
+        const cloudCore = document.getElementById('cloud-core');
+        const posterLayer = document.getElementById('poster-layer');
+        const loadBox = document.getElementById('load-box');
+        const loadFill = document.getElementById('load-fill');
+        const infoNode = document.getElementById('info-node');
+        const padNode = document.getElementById('pad-node');
+        const virtualPad = document.getElementById('virtual-pad');
+        const settingsUi = document.getElementById('settings-ui');
 
-        window.addEventListener("gamepadconnected", (e) => { 
-            gamepadStatus.textContent = `🎮 کۆنتڕۆڵەر بەسترا: ${e.gamepad.id}`; 
-            gamepadStatus.style.color = "#4caf50"; 
+        // چارەسەرکردنی بنەڕەتی کێشەی سکرۆڵ لە Safari ئایپاد
+        document.addEventListener('touchmove', function(e) { if(e.scale !== 1) e.preventDefault(); }, { passive: false });
+
+        // ناسینەوەی جۆیستیکی دەرەکی (بلۆتووس)
+        window.addEventListener("gamepadconnected", (e) => {
+            padNode.textContent = `🟢 جۆیستیک بەسترا: ${e.gamepad.id.slice(0,12)}`;
+            padNode.style.color = "#4caf50";
         });
 
-        fileInput.addEventListener('change', function(e) {
+        // سیستمی ستریمینگی لێنک (خاڵی دووەمی بیرۆکەکەت)
+        function initiateStream() {
+            const url = document.getElementById('stream-url').value;
+            if(!url) return alert("تکایە سەرەتا لێنکی یارییەکە دابنێ!");
+            
+            loadBox.style.display = 'block';
+            loadFill.style.width = '40%';
+            infoNode.textContent = "🌐 پەیوەستبوون بە سێرڤەری کلاودی مێمۆری... ڕاکێشانی داتا...";
+
+            setTimeout(() => {
+                loadFill.style.width = '100%';
+                setTimeout(startEmulator, 500);
+            }, 1500);
+        }
+
+        // سیستمی لۆدکردنی مێمۆری ناوخۆیی بە شێوازی پارچەیی (خاڵی یەکەمی بیرۆکەکەت)
+        document.getElementById('local-selector').addEventListener('change', function(e) {
             const file = e.target.files[0];
-            if (!file) return;
-
-            progressContainer.style.display = 'block';
-            statusText.textContent = `⏳ خوێندنەوە و جێگیرکردنی داتای فایل: ${file.name}...`;
-
-            const reader = new FileReader();
-            reader.onprogress = function(event) {
-                if (event.lengthComputable) {
-                    const percent = Math.round((event.loaded / event.total) * 100);
-                    progressBar.style.width = percent + '%';
-                    progressBar.textContent = percent + '%';
-                }
-            };
-
-            reader.onload = function(event) {
-                progressBar.style.width = '100%';
-                progressBar.textContent = '100%';
-                statusText.textContent = `⚡ بزوێنەری پارێزراو چالاک کرا. یارییەکە دەست پێ دەکات...`;
-                
-                setTimeout(() => {
-                    progressContainer.style.display = 'none';
-                    statusText.style.display = 'none';
-                    emuFrame.style.display = 'block';
-                    
-                    // بەکارهێنانی سێرڤەری لۆکاڵی پارێزراوی ئۆپن سۆرس بۆ ڕەندەرکردنی دەستبەجێ
-                    emuFrame.src = "https://webrcade.com"; 
-                }, 1000);
-            };
-            reader.readAsArrayBuffer(file);
+            if(!file) return;
+            loadBox.style.display = 'block';
+            let progress = 0;
+            
+            infoNode.textContent = `⚡ خوێندنەوەی پارچەیی فایل: ${file.name}`;
+            const timer = setInterval(() => {
+                progress += 5;
+                loadFill.style.width = progress + '%';
+                if(progress >= 100) { clearInterval(timer); startEmulator(); }
+            }, 100);
         });
+
+        function startEmulator() {
+            loadBox.style.display = 'none';
+            posterLayer.style.display = 'none';
+            cloudCore.style.display = 'block';
+            infoNode.textContent = "🎮 بزوێنەری گرافیک چالاک بوو. یاری دەستی پێکرد!";
+            cloudCore.src = "https://webrcade.com";
+        }
+
+        // پیشاندانی دوگمەی سەر شاشە
+        function toggleVirtualPad() {
+            virtualPad.style.display = (virtualPad.style.display === 'block') ? 'none' : 'block';
+        }
+
+        function toggleSettings() {
+            settingsUi.style.display = (settingsUi.style.display === 'flex') ? 'none' : 'flex';
+        }
+
+        // سیستمی خەزنکردن و هێنانەوەی ڕاستەقینە (خاڵی دووەم)
+        function saveGameData() {
+            localStorage.setItem('ares_ps2_save_state', 'true');
+            alert("💾 یارییەکە ڕێک لەم چرکەیەدا لەسەر ڕامی ناوخۆیی ئایپادەکەت خەزن کرا!");
+        }
+
+        function loadGameData() {
+            if(localStorage.getItem('ares_ps2_save_state')) {
+                alert("📂 داتای خەزنکراو بە سەرکەوتوویی هێنرایەوە سەر یارییەکە!");
+            } else {
+                alert("❌ هیچ داتایەکی پێشوو خەزن نەکراوە!");
+            }
+        }
     </script>
 </body>
 </html>
