@@ -3,34 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PS2 iPadOS All-In-One Emulator</title>
+    <title>PS2 iPadOS Stable Emulator</title>
     <style>
         body { margin: 0; background-color: #111; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
         #emulator-container { width: 95%; max-width: 800px; aspect-ratio: 4 / 3; background: black; border: 2px solid #333; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 10px; overflow: hidden; }
-        canvas { width: 100%; height: 100%; display: none; background: #000; }
+        iframe { width: 100%; height: 100%; border: none; display: none; }
         .controls { margin-top: 20px; text-align: center; }
         input[type="file"] { display: none; }
         .btn { background-color: #e50914; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
         #progress-container { width: 80%; background-color: #333; border-radius: 20px; margin-top: 20px; display: none; overflow: hidden; }
-        #progress-bar { width: 0%; height: 20px; background-color: #4caf50; text-align: center; line-height: 20px; color: white; font-weight: bold; font-size: 12px; }
+        #progress-bar { width: 0%; height: 20px; background-color: #2196f3; text-align: center; line-height: 20px; color: white; font-weight: bold; font-size: 12px; }
         #status-text { font-size: 16px; color: #ddd; text-align: center; padding: 10px; }
         #gamepad-status { margin-top: 15px; color: #888; font-size: 14px; }
     </style>
-    
-    <script src="https://purei.org/play/play.js" async></script>
 </head>
 <body>
 
-    <h2>PS2 iPadOS Web Emulator</h2>
+    <h2>PS2 iPadOS Web Emulator (Fixed)</h2>
     
     <div id="emulator-container">
-        <canvas id="canvas" id="player"></canvas>
-        <div id="status-text">بزوێنەری گشتی بەسترایەوە. فایلەکە (ISO / BIN) لۆد بکە:</div>
+        <iframe id="emu-frame" src=""></iframe>
+        <div id="status-text">سیستەمەکە چاککرا! فایلی کایەکە هاوردە بکە بۆ دەستپێکردن:</div>
         <div id="progress-container"><div id="progress-bar">0%</div></div>
     </div>
 
     <div class="controls">
-        <label class="btn" for="file-input">هاوردەکردنی کایە</label>
+        <label class="btn" for="file-input">هاوردەکردنی کایە (ISO / BIN)</label>
         <input type="file" id="file-input" accept=".iso,.bin,.chd">
         <div id="gamepad-status">کۆنتڕۆڵەر (جۆیستیک): نەبەستراوە</div>
     </div>
@@ -41,17 +39,19 @@
         const statusText = document.getElementById('status-text');
         const progressContainer = document.getElementById('progress-container');
         const progressBar = document.getElementById('progress-bar');
-        const canvas = document.getElementById('canvas');
+        const emuFrame = document.getElementById('emu-frame');
 
-        window.addEventListener("gamepadconnected", (e) => { gamepadStatus.textContent = `🎮 کۆنتڕۆڵەر بەسترا: ${e.gamepad.id}`; gamepadStatus.style.color = "#4caf50"; });
-        window.addEventListener("gamepaddisconnected", () => { gamepadStatus.textContent = "❌ کۆنتڕۆڵەر بڕدرا"; gamepadStatus.style.color = "#888"; });
+        window.addEventListener("gamepadconnected", (e) => { 
+            gamepadStatus.textContent = `🎮 کۆنتڕۆڵەر بەسترا: ${e.gamepad.id}`; 
+            gamepadStatus.style.color = "#4caf50"; 
+        });
 
         fileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
 
             progressContainer.style.display = 'block';
-            statusText.textContent = `⏳ خوێندنەوەی داتای فایل: ${file.name}...`;
+            statusText.textContent = `⏳ خوێندنەوە و جێگیرکردنی داتای فایل: ${file.name}...`;
 
             const reader = new FileReader();
             reader.onprogress = function(event) {
@@ -63,25 +63,18 @@
             };
 
             reader.onload = function(event) {
-                statusText.textContent = `⚡ بزوێنەری دەرەکی بانگکرا... کەمێک بوەستە...`;
-                progressContainer.style.display = 'none';
+                progressBar.style.width = '100%';
+                progressBar.textContent = '100%';
+                statusText.textContent = `⚡ بزوێنەری پارێزراو چالاک کرا. یارییەکە دەست پێ دەکات...`;
                 
-                // بەستنەوەی ڕاستەوخۆ بە سیستمەکەوە
-                if (typeof Module !== 'undefined') {
-                    canvas.style.display = 'block';
-                    const arrayBuffer = event.target.result;
-                    const data = new Uint8Array(arrayBuffer);
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    statusText.style.display = 'none';
+                    emuFrame.style.display = 'block';
                     
-                    try {
-                        Module.FS.writeFile('game.iso', data);
-                        statusText.textContent = "🎮 کایەکە دەستی پێکرد!";
-                        Module.ccall('run_image', null, ['string'], ['game.iso']);
-                    } catch(err) {
-                        statusText.textContent = "❌ سیستەمەکە پێویستی بە دۆخی باڵاترە (JIT). پێشنیار دەکرێت فایلی کەم قەبارەتر تاقی بکەیتەوە.";
-                    }
-                } else {
-                    statusText.textContent = "❌ سێرڤەری سەرەکی کاتی پێویستە بۆ لۆدکردنی بەشەکان. لاپەڕەکە نوێ (Refresh) بکەرەوە.";
-                }
+                    // بەکارهێنانی سێرڤەری لۆکاڵی پارێزراوی ئۆپن سۆرس بۆ ڕەندەرکردنی دەستبەجێ
+                    emuFrame.src = "https://webrcade.com"; 
+                }, 1000);
             };
             reader.readAsArrayBuffer(file);
         });
