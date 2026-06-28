@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ku">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PS2 iPad Emulator</title>
+    <style>
+        body { margin: 0; background-color: #111; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+        #emulator-container { width: 95%; max-width: 800px; aspect-ratio: 4 / 3; background: black; border: 2px solid #333; position: relative; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
+        .controls { margin-top: 20px; text-align: center; }
+        input[type="file"] { display: none; }
+        .btn { background-color: #e50914; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        #gamepad-status { margin-top: 15px; color: #888; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <h2>PS2 iPadOS Web Emulator</h2>
+    
+    <div id="emulator-container">
+        <div id="placeholder">فایلی یاریەکە (.iso) هەڵبژێره بۆ دەستپێکردن</div>
+    </div>
+
+    <div class="controls">
+        <label class="btn" for="file-input">هاوردەکردنی یاری God of War</label>
+        <input type="file" id="file-input" accept=".iso">
+        <div id="gamepad-status">کۆنتڕۆڵەر (جۆیستیک): نەبەستراوە</div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('file-input');
+        const gamepadStatus = document.getElementById('gamepad-status');
+        const placeholder = document.getElementById('placeholder');
+
+        // ناسینەوەی جۆیستیک لە ڕێگەی بلۆتووسی ئایپادەوە
+        window.addEventListener("gamepadconnected", (e) => {
+            gamepadStatus.textContent = `🎮 کۆنتڕۆڵەر بە سەرکەوتوویی بەسترا: ${e.gamepad.id}`;
+            gamepadStatus.style.color = "#4caf50";
+        });
+
+        window.addEventListener("gamepaddisconnected", (e) => {
+            gamepadStatus.textContent = "❌ کۆنتڕۆڵەر بڕدرا؛ تکایە دووبارە بیبەستەوە";
+            gamepadStatus.style.color = "#888";
+        });
+
+        // خوێندنەوەی فایلی یاری ISO لە ناو ئایپاددا
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                placeholder.textContent = `🔄 لۆدکردنی یاری ${file.name}... تکایە چاوەڕوان بە...`;
+            }
+        });
+    </script>
+</body>
+</html>
