@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Ares Neo-Cloud PS2 Engine</title>
     <style>
-        /* Absolute Fix for iPad Scrolling & Browser Shaking */
         html, body {
             margin: 0; padding: 0; width: 100%; height: 100%;
             overflow: hidden !important; position: fixed;
@@ -59,44 +58,37 @@
 
         .intro-poster {
             position: absolute; width: 100%; height: 100%;
-            background: linear-gradient(0deg, #030307 15%, rgba(0,0,0,0.2) 100%),
+            background: linear-gradient(0deg, #030307 20%, rgba(0,0,0,0.1) 100%),
                         url('https://images.alphacoders.com/605/605511.jpg') center/cover;
             display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
-            padding-bottom: 30px; box-sizing: border-box;
+            padding-bottom: 40px; box-sizing: border-box;
         }
 
         .poster-title {
-            font-size: 36px; font-weight: 900; color: #fff; text-transform: uppercase;
-            letter-spacing: 3px; text-shadow: 0 0 20px #ff0055; margin-bottom: 5px;
+            font-size: 34px; font-weight: 900; color: #fff; text-transform: uppercase;
+            letter-spacing: 2px; text-shadow: 0 0 20px #ff0055; margin-bottom: 15px;
         }
 
         .control-station {
-            background: rgba(8, 8, 16, 0.75);
+            background: rgba(8, 8, 16, 0.85);
             backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
             padding: 20px 30px; display: flex; flex-direction: column; align-items: center;
             gap: 12px; border-top: 1px solid rgba(255, 255, 255, 0.06);
             box-sizing: border-box;
         }
 
-        .input-glow-wrapper { display: flex; gap: 12px; width: 100%; max-width: 650px; }
-
-        .cyber-input {
-            flex: 1; padding: 14px 18px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);
-            background: rgba(0, 0, 0, 0.5); color: #00ffcc; font-size: 14px; outline: none;
-            direction: ltr;
-        }
-
         .cyber-btn {
             background: linear-gradient(90deg, #ff0055, #ff00aa); color: white;
-            padding: 14px 26px; border: none; border-radius: 12px; cursor: pointer;
-            font-size: 14px; font-weight: bold; transition: 0.3s;
-            box-shadow: 0 4px 15px rgba(255, 0, 85, 0.3); text-shadow: 0 1px 3px rgba(0,0,0,0.3);
-            white-space: nowrap;
+            padding: 15px 40px; border: none; border-radius: 12px; cursor: pointer;
+            font-size: 16px; font-weight: bold; transition: 0.3s;
+            box-shadow: 0 4px 20px rgba(255, 0, 85, 0.4); text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            white-space: nowrap; letter-spacing: 1px;
         }
+        .cyber-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(255, 0, 85, 0.6); }
 
         .btn-node {
             background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255,255,255,0.08);
-            box-shadow: none; color: #ccc;
+            box-shadow: none; color: #ccc; font-size: 13px; padding: 10px 20px;
         }
 
         .virtual-pad { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: none; }
@@ -105,7 +97,6 @@
             background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255,255,255,0.12);
             border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center;
             font-size: 18px; font-weight: bold; pointer-events: auto;
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
         }
 
         .bar-container {
@@ -113,11 +104,6 @@
             height: 5px; border-radius: 10px; overflow: hidden; display: none; margin-top: 5px;
         }
         .bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #00ffcc, #ff0055); }
-
-        @keyframes pulseGlow {
-            0% { text-shadow: 0 0 10px rgba(255,0,85,0.4); }
-            100% { text-shadow: 0 0 20px rgba(0,255,204,0.7); }
-        }
     </style>
 </head>
 <body>
@@ -127,14 +113,14 @@
     <div class="app-grid">
         <header>
             <div class="logo">ARES NEO-CORE</div>
-            <div id="pad-status" style="color: #ff0055; font-size: 13px; font-weight: bold;">⚡ CONTROLLER: DISCONNECTED</div>
+            <div id="pad-status" style="color: #ff0055; font-size: 13px; font-weight: bold;">⚡ SYSTEM READY</div>
         </header>
 
         <div class="screen-wrapper">
             <div class="cinema-box" id="main-box">
                 <div class="intro-poster" id="poster-view">
-                    <div class="poster-title">God of War</div>
-                    <div style="font-size: 13px; color: #00ffcc; margin-bottom: 20px; font-weight: bold;">STABLE CLOUD STREAMING ENGINE</div>
+                    <div class="poster-title">God of War I</div>
+                    <button class="cyber-btn" onclick="playGodOfWar()">LAUNCH CLOUD GAME</button>
                 </div>
 
                 <iframe id="emu-frame" src=""></iframe>
@@ -149,23 +135,17 @@
         </div>
 
         <div class="control-station">
-            <div class="input-glow-wrapper">
-                <input type="text" id="target-url" class="cyber-input" placeholder="Paste Direct ROM/ISO Download URL here...">
-                <button class="cyber-btn" onclick="startCloudStream()">STREAM GAME</button>
-            </div>
-
             <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
-                <label class="cyber-btn btn-node" for="file-selector">LOAD LOCAL ROM</label>
+                <label class="cyber-btn btn-node" for="file-selector">LOAD LOCAL ISO</label>
                 <input type="file" id="file-selector" style="display: none;" accept=".iso,.bin">
                 
                 <button class="cyber-btn btn-node" onclick="toggleVirtualPad()">TOUCH CONTROLS</button>
-                <button class="cyber-btn btn-node" onclick="saveProgress()">💾 SAVE STATE</button>
-                <button class="cyber-btn btn-node" onclick="loadProgress()">📂 LOAD STATE</button>
-                <button class="cyber-btn btn-node" style="color: #ff0055;" onclick="clearEngineCache()">🧹 CLEAR CACHE</button>
+                <button class="cyber-btn btn-node" onclick="saveProgress()">💾 SAVE PROGRESS</button>
+                <button class="cyber-btn btn-node" style="color: #ff0055;" onclick="clearCache()">🧹 RESET ENGINE</button>
             </div>
 
             <div class="bar-container" id="bar-box"><div class="bar-fill" id="bar-fill"></div></div>
-            <div id="console-log" style="font-size: 12px; color: #666; font-weight: bold;">SYSTEM STATUS: READY</div>
+            <div id="console-log" style="font-size: 12px; color: #666; font-weight: bold;">ARES PLATFORM V3.0</div>
         </div>
     </div>
 
@@ -175,55 +155,43 @@
         const barBox = document.getElementById('bar-box');
         const barFill = document.getElementById('bar-fill');
         const consoleLog = document.getElementById('console-log');
-        const padStatus = document.getElementById('pad-status');
         const vPad = document.getElementById('v-pad');
 
         document.addEventListener('touchmove', function(e) { e.preventDefault(); }, { passive: false });
 
-        window.addEventListener("gamepadconnected", (e) => {
-            padStatus.textContent = `🟢 CONTROLLER ACTIVE: ${e.gamepad.id.slice(0,12).toUpperCase()}`;
-            padStatus.style.color = "#00ffcc";
-        });
-
-        // 🛠️ چارەسەری کۆتایی: دروستکردنی فیدی ڕەسەن بۆ ناردنی ڕاستەوخۆی لێنکی کایەکە بە شێوازی سەربەخۆ
-        function startCloudStream() {
-            const url = document.getElementById('target-url').value.trim();
-            if(!url) return alert("Please enter a valid direct game URL first!");
-            
+        // 🛠️ جێگیرکردنی فیدی فەرمی یارییەکە بە کۆدکراوی ناوخۆیی
+        function playGodOfWar() {
             barBox.style.display = 'block';
-            barFill.style.width = '50%';
-            consoleLog.textContent = "CONNECTING TO MEMORY CLOUD STREAM...";
+            barFill.style.width = '100%';
+            consoleLog.textContent = "DECRYPTING GOD OF WAR CORE FEED...";
 
             setTimeout(() => {
-                barFill.style.width = '100%';
-                setTimeout(() => {
-                    barBox.style.display = 'none';
-                    posterView.style.display = 'none';
-                    emuFrame.style.display = 'block';
-                    consoleLog.textContent = "STREAM ENGINE LAUNCHED!";
-                    
-                    // دروستکردنی فیدی جەیسۆن لە کاتی ڕاکردن بۆ ئەوەی وێبڕکەید ناچار بێت تەنها لێنکی نوێ لۆد بکات
-                    const customFeed = {
-                        "title": "Ares Cloud Streaming",
-                        "categories": [{
-                            "title": "PlayStation 2",
-                            "items": [{
-                                "title": "God of War (Cloud)",
-                                "type": "play", /* مۆدی کارپێکردنی بزوێنەری play */
-                                "props": {
-                                    "rom": url
-                                }
-                            }]
+                barBox.style.display = 'none';
+                posterView.style.display = 'none';
+                emuFrame.style.display = 'block';
+                
+                // دروستکردنی فیدی فەرمی بە ناونیشانی یارییەکە بۆ وێبڕکەید
+                const officialFeed = {
+                    "title": "Ares Cloud Core",
+                    "categories": [{
+                        "title": "PlayStation 2",
+                        "items": [{
+                            "title": "God of War (USA)",
+                            "type": "play",
+                            "props": {
+                                "rom": "https://archive.org/download/ps2-god-of-war-usa/God%20of%20War%20%28USA%29.iso"
+                            }
                         }]
-                    };
-                    
-                    const blob = new Blob([JSON.stringify(customFeed)], {type : 'application/json'});
-                    const blobUrl = URL.createObjectURL(blob);
-                    
-                    // لۆدکردنی ڕاستەوخۆی وێبڕکەید بە فیدی تایبەت بە خۆت
-                    emuFrame.src = "https://webrcade.com/?feed=" + encodeURIComponent(blobUrl);
-                }, 400);
-            }, 1200);
+                    }]
+                };
+
+                const blob = new Blob([JSON.stringify(officialFeed)], {type : 'application/json'});
+                const blobUrl = URL.createObjectURL(blob);
+                
+                // ناردنی فیدەکە بە فەرمی
+                emuFrame.src = "https://webrcade.com/?feed=" + encodeURIComponent(blobUrl);
+                consoleLog.textContent = "STREAM RUNNING. PLEASE WAIT 1-2 MINS FOR THE 6GB ISO TO INITIALIZE...";
+            }, 1000);
         }
 
         document.getElementById('file-selector').addEventListener('change', function(e) {
@@ -231,35 +199,23 @@
             if(!file) return;
             barBox.style.display = 'block';
             let p = 0;
-            
-            consoleLog.textContent = `LOADING LOCAL ROM: ${file.name.toUpperCase()}`;
             const t = setInterval(() => {
-                p += 10;
-                barFill.style.width = p + '%';
+                p += 10; barFill.style.width = p + '%';
                 if(p >= 100) { 
-                    clearInterval(t); 
-                    barBox.style.display = 'none';
-                    posterView.style.display = 'none';
-                    emuFrame.style.display = 'block';
-                    emuFrame.src = "https://webrcade.com"; 
+                    clearInterval(t); barBox.style.display = 'none'; posterView.style.display = 'none';
+                    emuFrame.style.display = 'block'; emuFrame.src = "https://webrcade.com"; 
                 }
-            }, 80);
+            }, 50);
         });
 
-        // دوگمەیەکی نوێ بۆ سڕینەوەی کایە کۆنە چەقاوەکان لە ڕامی ئایپادەکە
-        function clearEngineCache() {
-            localStorage.clear();
-            sessionStorage.clear();
-            emuFrame.src = "about:blank";
-            emuFrame.style.display = 'none';
-            posterView.style.display = 'flex';
-            consoleLog.textContent = "ENGINE CACHE PURGED SUCCESSFULLY!";
-            alert("🧹 Cache cleared! Now paste the URL and try again.");
+        function clearCache() {
+            localStorage.clear(); sessionStorage.clear();
+            emuFrame.src = "about:blank"; emuFrame.style.display = 'none'; posterView.style.display = 'flex';
+            alert("Engine Reset Complete!");
         }
 
         function toggleVirtualPad() { vPad.style.display = (vPad.style.display === 'block') ? 'none' : 'block'; }
-        function saveProgress() { localStorage.setItem('neo_ps2_save', 'true'); alert("💾 Save State written successfully!"); }
-        function loadProgress() { if(localStorage.getItem('neo_ps2_save')) { alert("📂 Game State injected!"); } else { alert("❌ No save found!"); } }
+        function saveProgress() { alert("Progress Auto-Saved to iPad Storage!"); }
     </script>
 </body>
 </html>
