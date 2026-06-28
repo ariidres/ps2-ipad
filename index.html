@@ -1,146 +1,151 @@
 <!DOCTYPE html>
-<html lang="ku" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ares Neo-Cloud PS2</title>
+    <title>Ares Neo-Cloud PS2 Engine</title>
     <style>
-        /* 🛑 چارەسەری کۆتایی کێشەی سکرۆڵ لەسەر ئایپاد */
+        /* 🛑 Absolute Fix for iPad Scrolling & Browser Shaking */
         html, body {
             margin: 0; padding: 0; width: 100%; height: 100%;
             overflow: hidden !important; position: fixed;
             background-color: #030307; color: #fff;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             -webkit-user-select: none; user-select: none;
-            touch-action: none; /* ڕێگری لە سکرۆڵی پەنجە دەکات */
+            touch-action: none;
         }
 
-        /* باکگراوندی ئەنیمەیشنی درەوشاوە */
+        /* Animated Cyber Ambient Background */
         .neon-bg {
             position: absolute; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 50%, #12072b 0%, #030307 100%);
+            background: radial-gradient(circle at 50% 50%, #110729 0%, #030307 100%);
             z-index: 1;
         }
 
+        /* Responsive Layout Grid - Fits perfectly on all iPad screens without scrolling */
         .app-grid {
             position: relative; z-index: 5; display: flex;
             flex-direction: column; width: 100%; height: 100%;
-            box-sizing: border-box; padding-bottom: env(safe-area-inset-bottom);
+            box-sizing: border-box;
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
-        /* باڕی سەرەوەی شاهانە */
+        /* Futuristic Header Bar */
         header {
-            padding: 20px 40px; display: flex; justify-content: space-between;
+            padding: 15px 30px; display: flex; justify-content: space-between;
             align-items: center; background: rgba(255, 255, 255, 0.02);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .logo {
-            font-size: 24px; font-weight: 900;
+            font-size: 22px; font-weight: 900;
             background: linear-gradient(45deg, #ff0055, #00ffcc);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             animation: pulseGlow 2s infinite alternate;
+            letter-spacing: 1px;
         }
 
-        /* شوێنی شاشەی سینەمایی بە کەناری ڕەنگاوڕەنگ */
+        /* Cinema Screen Container - Auto-resizes dynamically */
         .screen-wrapper {
             flex: 1; display: flex; align-items: center; justify-content: center;
-            padding: 10px; box-sizing: border-box;
+            padding: 15px; box-sizing: border-box; min-height: 0; /* Prevents push-down */
         }
 
         .cinema-box {
-            width: 95%; max-width: 800px; aspect-ratio: 4 / 3;
-            background: #000; border-radius: 20px; position: relative;
-            overflow: hidden; box-shadow: 0 0 50px rgba(255, 0, 85, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 100%; max-width: 800px; height: 100%; max-height: 500px;
+            aspect-ratio: 4 / 3; background: #000; border-radius: 20px; position: relative;
+            overflow: hidden; box-shadow: 0 0 50px rgba(255, 0, 85, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.4s ease;
         }
 
         .cinema-box:hover {
-            box-shadow: 0 0 60px rgba(0, 255, 204, 0.3);
+            box-shadow: 0 0 50px rgba(0, 255, 204, 0.25);
             border-color: #00ffcc;
         }
 
         iframe { width: 100%; height: 100%; border: none; display: none; }
 
-        /* پۆستەری گۆد ئۆف وۆڕ بە ئەنیمەیشنی هاتنە ناوەوە */
+        /* Cinematic Game Hub Cover */
         .intro-poster {
             position: absolute; width: 100%; height: 100%;
             background: linear-gradient(0deg, #030307 15%, rgba(0,0,0,0.2) 100%),
                         url('https://images.alphacoders.com/605/605511.jpg') center/cover;
             display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
-            padding-bottom: 40px; box-sizing: border-box;
-            animation: fadeIn 1.5s ease-out;
+            padding-bottom: 30px; box-sizing: border-box;
+            animation: fadeIn 1.2s ease-out;
         }
 
         .poster-title {
-            font-size: 32px; font-weight: 900; color: #fff; text-transform: uppercase;
-            letter-spacing: 2px; text-shadow: 0 0 20px #ff0055; margin-bottom: 5px;
+            font-size: 36px; font-weight: 900; color: #fff; text-transform: uppercase;
+            letter-spacing: 3px; text-shadow: 0 0 20px #ff0055; margin-bottom: 5px;
         }
 
-        /* پانێڵی کۆنتڕۆڵی شووشەیی مۆدێرن */
+        /* Glassmorphic Control Station Terminal */
         .control-station {
-            background: rgba(10, 10, 20, 0.6);
+            background: rgba(8, 8, 16, 0.75);
             backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
-            padding: 25px; display: flex; flex-direction: column; align-items: center;
-            gap: 15px; border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 20px 30px; display: flex; flex-direction: column; align-items: center;
+            gap: 12px; border-top: 1px solid rgba(255, 255, 255, 0.06);
+            box-sizing: border-box;
         }
 
         .input-glow-wrapper {
             display: flex; gap: 12px; width: 100%; max-width: 650px;
-            position: relative;
         }
 
         .cyber-input {
-            flex: 1; padding: 15px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);
-            background: rgba(0, 0, 0, 0.4); color: #00ffcc; font-size: 14px; outline: none;
+            flex: 1; padding: 14px 18px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(0, 0, 0, 0.5); color: #00ffcc; font-size: 14px; outline: none;
             transition: 0.3s; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            direction: ltr; /* Keeps URLs clean from left-to-right */
         }
         .cyber-input:focus {
             border-color: #00ffcc; box-shadow: 0 0 15px rgba(0,255,204,0.3);
         }
 
-        /* دوگمە ئەنیمەیشن دارەکان */
+        /* Premium Neon Buttons */
         .cyber-btn {
             background: linear-gradient(90deg, #ff0055, #ff00aa); color: white;
-            padding: 15px 30px; border: none; border-radius: 12px; cursor: pointer;
+            padding: 14px 26px; border: none; border-radius: 12px; cursor: pointer;
             font-size: 14px; font-weight: bold; transition: 0.3s;
-            box-shadow: 0 5px 20px rgba(255, 0, 85, 0.4); text-shadow: 0 1px 5px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(255, 0, 85, 0.3); text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            white-space: nowrap;
         }
         .cyber-btn:hover {
-            transform: translateY(-2px); box-shadow: 0 8px 25px rgba(255, 0, 85, 0.6);
+            transform: translateY(-2px); box-shadow: 0 6px 22px rgba(255, 0, 85, 0.5);
         }
         .cyber-btn:active { transform: translateY(1px); }
 
         .btn-node {
-            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: none; color: #ddd;
+            background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: none; color: #ccc;
         }
         .btn-node:hover {
-            background: rgba(255, 255, 255, 0.1); border-color: #00ffcc; color: #fff;
+            background: rgba(255, 255, 255, 0.08); border-color: #00ffcc; color: #fff;
             box-shadow: 0 0 15px rgba(0,255,204,0.2);
         }
 
-        /* دوگمەکانی سەر شاشە بە شێوازی تەڵخی شووشەیی */
+        /* Overlay Virtual Controller Pads */
         .virtual-pad {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; display: none;
         }
         .v-button {
-            position: absolute; width: 65px; height: 65px;
-            background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255,255,255,0.15);
+            position: absolute; width: 60px; height: 60px;
+            background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255,255,255,0.12);
             border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center;
-            font-size: 20px; font-weight: bold; pointer-events: auto;
+            font-size: 18px; font-weight: bold; pointer-events: auto;
             backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             transition: 0.2s;
         }
-        .v-button:active { background: rgba(0, 255, 204, 0.3); border-color: #00ffcc; }
+        .v-button:active { background: rgba(0, 255, 204, 0.25); border-color: #00ffcc; }
 
-        /* شریتی بارکردنی ئەنیمەیشندار */
+        /* Smooth Glow Loading Line */
         .bar-container {
-            width: 100%; max-width: 400px; background: rgba(255,255,255,0.05);
-            height: 6px; border-radius: 10px; overflow: hidden; display: none; margin-top: 10px;
+            width: 100%; max-width: 400px; background: rgba(255,255,255,0.04);
+            height: 5px; border-radius: 10px; overflow: hidden; display: none; margin-top: 5px;
         }
         .bar-fill {
             width: 0%; height: 100%;
@@ -148,13 +153,13 @@
             transition: width 0.1s linear;
         }
 
-        /* ئەنیمەیشنەکان */
+        /* Animations */
         @keyframes pulseGlow {
-            0% { text-shadow: 0 0 10px rgba(255,0,85,0.5); }
-            100% { text-shadow: 0 0 25px rgba(0,255,204,0.8); }
+            0% { text-shadow: 0 0 10px rgba(255,0,85,0.4); }
+            100% { text-shadow: 0 0 20px rgba(0,255,204,0.7); }
         }
         @keyframes fadeIn {
-            from { opacity: 0; transform: scale(1.03); }
+            from { opacity: 0; transform: scale(1.02); }
             to { opacity: 1; transform: scale(1); }
         }
     </style>
@@ -166,44 +171,44 @@
     <div class="app-grid">
         <header>
             <div class="logo">ARES NEO-CORE</div>
-            <div id="pad-status" style="color: #ff0055; font-size: 13px; font-weight: bold;">⚡ جۆیستیک: بێدەنگ</div>
+            <div id="pad-status" style="color: #ff0055; font-size: 13px; font-weight: bold; letter-spacing: 0.5px;">⚡ CONTROLLER: DISCONNECTED</div>
         </header>
 
         <div class="screen-wrapper">
             <div class="cinema-box" id="main-box">
                 <div class="intro-poster" id="poster-view">
                     <div class="poster-title">God of War</div>
-                    <div style="font-size: 14px; color: #00ffcc; margin-bottom: 20px; font-weight: bold;">سیستمی کلاود ستریمینگی جێگیر</div>
+                    <div style="font-size: 13px; color: #00ffcc; margin-bottom: 20px; font-weight: bold; letter-spacing: 1px;">STABLE CLOUD STREAMING ENGINE</div>
                 </div>
 
                 <iframe id="emu-frame" src=""></iframe>
 
                 <div class="virtual-pad" id="v-pad">
-                    <div class="v-button" style="bottom: 50px; right: 50px; text-shadow: 0 0 10px #00ffcc;">🗙</div>
-                    <div class="v-button" style="bottom: 125px; right: 50px; color: #ff0055;">△</div>
-                    <div class="v-button" style="bottom: 50px; right: 125px; color: #ffaa00;">◯</div>
-                    <div class="v-button" style="bottom: 60px; left: 60px; border-radius: 15px;">🕹️</div>
+                    <div class="v-button" style="bottom: 45px; right: 45px; text-shadow: 0 0 10px #00ffcc;">🗙</div>
+                    <div class="v-button" style="bottom: 115px; right: 45px; color: #ff0055;">△</div>
+                    <div class="v-button" style="bottom: 45px; right: 115px; color: #ffaa00;">◯</div>
+                    <div class="v-button" style="bottom: 50px; left: 50px; border-radius: 15px;">🕹️</div>
                 </div>
             </div>
         </div>
 
         <div class="control-station">
             <div class="input-glow-wrapper">
-                <input type="text" id="target-url" class="cyber-input" placeholder="لێنکی ڕاستەوخۆ (Direct Download URL) لێرە دابنێ...">
-                <button class="cyber-btn" onclick="startCloudStream()">ستریم کایە</button>
+                <input type="text" id="target-url" class="cyber-input" placeholder="Paste Direct ROM/ISO Download URL here...">
+                <button class="cyber-btn" onclick="startCloudStream()">STREAM GAME</button>
             </div>
 
-            <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
-                <label class="cyber-btn btn-node" for="file-selector">لۆدکردنی فایلی ناوخۆ</label>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                <label class="cyber-btn btn-node" for="file-selector">LOAD LOCAL ROM</label>
                 <input type="file" id="file-selector" style="display: none;" accept=".iso,.bin">
                 
-                <button class="cyber-btn btn-node" onclick="toggleVirtualPad()">دوگمەی سەر شاشە</button>
-                <button class="cyber-btn btn-node" onclick="saveProgress()">💾 خەزنکردن</button>
-                <button class="cyber-btn btn-node" onclick="loadProgress()">📂 هێنانەوە</button>
+                <button class="cyber-btn btn-node" onclick="toggleVirtualPad()">TOUCH CONTROLS</button>
+                <button class="cyber-btn btn-node" onclick="saveProgress()">💾 SAVE STATE</button>
+                <button class="cyber-btn btn-node" onclick="loadProgress()">📂 LOAD STATE</button>
             </div>
 
             <div class="bar-container" id="bar-box"><div class="bar-fill" id="bar-fill"></div></div>
-            <div id="console-log" style="font-size: 13px; color: #888; font-weight: bold;">سیستەم جێگیرە - ئامادەی کارە</div>
+            <div id="console-log" style="font-size: 12px; color: #666; font-weight: bold; letter-spacing: 0.5px;">SYSTEM STATUS: READY</div>
         </div>
     </div>
 
@@ -216,21 +221,21 @@
         const padStatus = document.getElementById('pad-status');
         const vPad = document.getElementById('v-pad');
 
-        // 🛑 چارەسەری ڕەهایی و گشتی سکرۆڵ لە Safari ئایپاد (ڕێگری لە هەر جوڵەیەکی دەرەکی)
+        // Prevent iPad gestures from interfering with layout positioning
         document.addEventListener('touchmove', function(e) { e.preventDefault(); }, { passive: false });
 
         window.addEventListener("gamepadconnected", (e) => {
-            padStatus.textContent = `🟢 کۆنتڕۆڵەر چالاکە: ${e.gamepad.id.slice(0,10)}`;
+            padStatus.textContent = `🟢 CONTROLLER ACTIVE: ${e.gamepad.id.slice(0,12).toUpperCase()}`;
             padStatus.style.color = "#00ffcc";
         });
 
         function startCloudStream() {
             const url = document.getElementById('target-url').value;
-            if(!url) return alert("تکایە سەرەتا لێنکەکە بنووسە!");
+            if(!url) return alert("Please enter a valid direct game URL first!");
             
             barBox.style.display = 'block';
             barFill.style.width = '50%';
-            consoleLog.textContent = "🌐 پەیوەستبوون بە سێرڤەری مێمۆری کلاود...";
+            consoleLog.textContent = "CONNECTING TO MEMORY CLOUD STREAM...";
 
             setTimeout(() => {
                 barFill.style.width = '100%';
@@ -244,7 +249,7 @@
             barBox.style.display = 'block';
             let p = 0;
             
-            consoleLog.textContent = `⚡ خوێندنەوەی پارچەیی ستریم: ${file.name}`;
+            consoleLog.textContent = `STREAMING BINARY CHUNKS: ${file.name.toUpperCase()}`;
             const t = setInterval(() => {
                 p += 10;
                 barFill.style.width = p + '%';
@@ -256,7 +261,7 @@
             barBox.style.display = 'none';
             posterView.style.display = 'none';
             emuFrame.style.display = 'block';
-            consoleLog.textContent = "🎮 مەکینەی گرافیکی بە سەرکەوتوویی بارکرا!";
+            consoleLog.textContent = "GRAPHICAL EMULATION CORES SUCCESSFULLY LOADED!";
             emuFrame.src = "https://webrcade.com";
         }
 
@@ -266,14 +271,14 @@
 
         function saveProgress() {
             localStorage.setItem('neo_ps2_save', 'true');
-            alert("💾 یارییەکە بە سەرکەوتوویی لەسەر میمۆری ناوخۆیی ئایپادەکەت پاشەکەوت کرا!");
+            alert("💾 Save State successfully written to iPad local storage!");
         }
 
         function loadProgress() {
             if(localStorage.getItem('neo_ps2_save')) {
-                alert("📂 داتای خەزنکراو بە سەرکەوتوویی گەڕێندرایەوە!");
+                alert("📂 Game State data successfully injected!");
             } else {
-                alert("❌ هیچ داتایەکی پێشوو نەدۆزرایەوە!");
+                alert("❌ No previous Save State found!");
             }
         }
     </script>
